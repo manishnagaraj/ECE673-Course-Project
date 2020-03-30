@@ -18,7 +18,7 @@ using namespace ns3;
 class PBFTHelper
 {
 public: 
-	PBFTHelper();
+	PBFTHelper(std::string protocol, Address address, uint64_t faults);
 	ApplicationContainer Install (Ptr<Node> node) const;
 	ApplicationContainer Install (std::string nodeName) const;
 	ApplicationContainer Install (NodeContainer c) const;
