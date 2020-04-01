@@ -15,6 +15,14 @@
 #include "ns3/log.h"
 #include "ns3/core-module.h"
 #include "ns3/application.h"
+#include "ns3/string.h"
+#include "ns3/inet-socket-address.h"
+#include "ns3/names.h"
+#include "ns3/packet-socket-address.h"
+#include "ns3/string.h"
+#include "ns3/data-rate.h"
+#include "ns3/uinteger.h"
+#include "ns3/names.h"
 
 #include "PBFTHelper.h"
 #include "PBFT.h"
@@ -22,10 +30,13 @@
 using namespace ns3;
 NS_LOG_COMPONENT_DEFINE ("PBFTHelper");
 
-PBFTHelper :: PBFTHelper()
+PBFTHelper :: PBFTHelper(std::string protocol, Address address, uint64_t faults)
 {
         NS_LOG_FUNCTION(this);
-        m_factory.SetTypeId (PBFT :: GetTypeId ()); 
+        m_factory.SetTypeId ("ns3::PBFT");
+        m_factory.Set ("Protocol", StringValue (protocol));
+        m_factory.Set ("Local", AddressValue (address)); 
+        m_factory.Set ("NumberFaults", UintegerValue (faults)); 
         //Connect it to the PBFT application code
 }
 
@@ -36,6 +47,8 @@ PBFTHelper :: Install (Ptr<Node> node) const
         NS_LOG_FUNCTION(this);
         return ApplicationContainer (InstallPriv (node));
 }
+
+
 
 ApplicationContainer 
 PBFTHelper :: Install (std::string nodeName) const
