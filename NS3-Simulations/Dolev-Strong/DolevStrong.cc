@@ -89,8 +89,6 @@ DolevStrong::DolevStrong ()
   NS_LOG_FUNCTION (this);
   m_socket_Rx = 0;
   m_socket_Tx = 0;
-  m_prop_cnt = 0;
-  m_pre_cnt = 0;
   m_com_cnt = 0;
 }
 
@@ -321,12 +319,18 @@ void DolevStrong:: HandlePacket (Ptr<Packet> packet)
         std::string Value_recvd = std::string((char*)buffer);
 //If received 2f+1 valid signatures, commit
         AddComCnt();
-	if(GetComCnt()== (2*m_faults) + 1)
+        if(GetComCnt() == 1){
+        std::ostringstream msg; 
+        msg << "1,Hello!" << '\0';
+        Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), msg.str().length());
+        SendEvent(packet1);  
+        }
+	if(GetComCnt()== (2*m_faults) + 1){
 		NS_LOG_INFO("Node " << GetNode()->GetId() << " is commiting to value");
+                StopApplication();
+        }
 //check commit count 
 }//commit stage 
-
-}
 
 }// namespace ns3
 
