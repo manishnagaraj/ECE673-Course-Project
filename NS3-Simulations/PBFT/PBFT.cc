@@ -370,8 +370,10 @@ if(precur=='1'){
 
 if(precur=='2'){
         AddComCnt();
-	if(GetComCnt()== (2*m_faults) + 1)
+	if(GetComCnt()== (2*m_faults) + 1){
 		NS_LOG_INFO("Node " << GetNode()->GetId() << " is commiting to value");
+                StopApplication();
+        }
 //check commit count 
 }//commit stage 
 
