@@ -6,7 +6,9 @@ import pdb
 from crypto.Cipher import AES
 from crypto import Random
 
+N = 4
 
+IV = b'\xa2\xae\x8b\xbd\xa5GJF\x13\xd9!\xd6\xad\x13\xe8\xa5'
 
 cid = sys.argv[1]
 SERVER = sys.argv[2]
@@ -46,7 +48,7 @@ while 1:
 		for i in inputready:
 			data, address = client.recvfrom(1024)
 			port = address[1]
-			cipher = AES.new(keys[int(cid)][port_mapper[port]])
+			cipher = AES.new(keys[int(cid)][port_mapper[port]], AES.MODE_EAX, IV)
 			plaintext = cipher.decrypt(data)
 			data = plaintext[:-plaintext[-1]]
 			print(messages)
@@ -59,11 +61,11 @@ while 1:
 					length = 16 - (len(match_message) % 16)
 					match_message += bytes([length])*length
 					for i in neighbors:
-						cipher = AES.new(keys[int(cid)][i[0]])
+						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match_message)
 						client.sendto(ciphertext, (i[3], i[2]))
 
-					cipher = AES.new(keys[int(cid)]['server'])
+					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 					ciphertext = cipher.encrypt(match_message)
 					client.sendto(ciphertext, (SERVER, int(PORT)))
 
@@ -72,11 +74,11 @@ while 1:
 					length = 16 - (len(match) % 16)
 					match += bytes([length])*length
 					for i in neighbors:
-						cipher = AES.new(keys[int(cid)][i[0]])
+						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match)
 						client.sendto(ciphertext, (i[3], i[2]))
 
-					cipher = AES.new(keys[int(cid)]['server'])
+					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 					ciphertext = cipher.encrypt(match)
 					client.sendto(ciphertext, (SERVER, int(PORT)))
 				
@@ -86,17 +88,17 @@ while 1:
 
 			elif STAGE == 'PREP':
 				match_message = "PREP10"
-				if len([match for match in messages if match == match_message]) >= 1:
+				if len([match for match in messages if match == match_message]) >= N-3:
 					match_message = "COMMIT10".encode()
 					if BYZANTINE == 'n':
 						length = 16 - (len(match_message) % 16)
 						match_message += bytes([length])*length
 						for i in neighbors:
-							cipher = AES.new(keys[int(cid)][i[0]])
+							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 							ciphertext = cipher.encrypt(match_message)
 							client.sendto(ciphertext, (i[3], i[2]))
 
-						cipher = AES.new(keys[int(cid)]['server'])
+						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match_message)
 						client.sendto(ciphertext, (SERVER, int(PORT)))
 
@@ -105,11 +107,11 @@ while 1:
 						length = 16 - (len(match) % 16)
 						match += bytes([length])*length
 						for i in neighbors:
-							cipher = AES.new(keys[int(cid)][i[0]])
+							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 							ciphertext = cipher.encrypt(match)
 							client.sendto(ciphertext, (i[3], i[2]))
 
-						cipher = AES.new(keys[int(cid)]['server'])
+						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match)
 						client.sendto(ciphertext, (SERVER, int(PORT)))
 
@@ -119,7 +121,7 @@ while 1:
 
 			elif STAGE == 'COMMIT':
 				if BYZANTINE == 'n':
-					if len([match for match in messages if match == match_message]) >= 2:
+					if len([match for match in messages if match == match_message]) >= N-2:
 						print("committed ", match_message)
 				STAGE = 'DONE'
 				print(STAGE)

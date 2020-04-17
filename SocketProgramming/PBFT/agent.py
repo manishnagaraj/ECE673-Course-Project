@@ -9,8 +9,13 @@ def get_key(val):
          if val == value: 
              return key
 
+
+N = 4
+
 host = ''
 port = 8081
+
+IV = b'\xa2\xae\x8b\xbd\xa5GJF\x13\xd9!\xd6\xad\x13\xe8\xa5'
 
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind((host, port))
@@ -66,18 +71,18 @@ while running:
 					print(clients)
 					print(client_ids)
 					
-					if len(addresses) == 3:
+					if len(addresses) == N-1:
 						for ind, i in enumerate(addresses):
 							REGISTER_RESPONSE = pickle.dumps(clients[client_ids[ind]])
 							server.sendto(REGISTER_RESPONSE, (addresses[client_ids[ind]], ports[client_ids[ind]]))
 		
 
-					if len(addresses) == 3:
+					if len(addresses) == N-1:
 						for ind, i in enumerate(addresses):
 							match_message = "PRE10".encode()
 							length = 16 - (len(match_message) % 16)
 							match_message += bytes([length])*length
-							cipher = AES.new(keys[client_ids[ind]])
+							cipher = AES.new(keys[client_ids[ind]], AES.MODE_EAX, IV)
 							ciphertext = cipher.encrypt(match_message)
 							server.sendto(ciphertext, (addresses[client_ids[ind]], ports[client_ids[ind]]))
 						STAGE = 'PREP'
@@ -85,7 +90,7 @@ while running:
 						print("Sent pre-prepare")
 				else:
 					port = address[1]
-					cipher = AES.new(keys[get_key(port)])
+					cipher = AES.new(keys[get_key(port)], AES.MODE_EAX, IV)
 					plaintext = cipher.decrypt(data)
 					data = plaintext[:-plaintext[-1]]
 					
@@ -93,14 +98,14 @@ while running:
 					messages.append(data.decode())
 					
 					if STAGE == 'PREP':
-						if len([match for match in messages if match == match_message]) >= 2:
+						if len([match for match in messages if match == match_message]) >= N-2:
 							STAGE = 'COMMIT'
 							if BYZANTINE == 'n':
 								for ind, i in enumerate(addresses):
 									match_message = "COMMIT10".encode()
 									length = 16 - (len(match_message) % 16)
 									match_message += bytes([length])*length
-									cipher = AES.new(keys[client_ids[ind]])
+									cipher = AES.new(keys[client_ids[ind]], AES.MODE_EAX, IV)
 									ciphertext = cipher.encrypt(match_message)
 									server.sendto(ciphertext, (addresses[client_ids[ind]], ports[client_ids[ind]]))
 						
@@ -112,6 +117,6 @@ while running:
 
 					if STAGE == 'COMMIT':
 						match_message = "COMMIT10"
-						if len([match for match in messages if match == match_message]) >= 2:
+						if len([match for match in messages if match == match_message]) >= N-2:
 							print("committed", match_message)
 							STAGE = 'DONE'
