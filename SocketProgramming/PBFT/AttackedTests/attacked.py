@@ -1,3 +1,4 @@
+import datetime
 import time
 import socket
 import sys
@@ -108,4 +109,5 @@ while 1:
 						STAGE = 'PRE'
 						print("DONE")
 
-				time.sleep(10)
+				sleeptime = 60 - datetime.utcnow().second
+				time.sleep(sleeptime)

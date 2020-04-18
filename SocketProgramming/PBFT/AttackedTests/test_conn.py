@@ -3,6 +3,7 @@ import socket
 import sys
 import select
 import pickle
+import datetime
 import pdb
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -141,4 +142,5 @@ while 1:
 					print("committed ", match_message)
 					STAGE = 'PRE'
 					print("DONE")
+				sleeptime = 60 - datetime.utcnow().second
 				time.sleep(10)

@@ -1,3 +1,4 @@
+import datetime
 import time
 import socket
 import sys
@@ -148,3 +149,5 @@ while 1:
 					print("committed ", match_message)
 					STAGE = 'PRE'
 					print("DONE")
+				sleeptime = 60 - datetime.utcnow().second
+				time.sleep(sleeptime)
