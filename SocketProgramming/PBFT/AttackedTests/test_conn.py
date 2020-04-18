@@ -96,6 +96,7 @@ while 1:
 			elif STAGE == 'PREP':
 				match_message = "PREP10"
 				if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "PREP10"]) >= 2:
+					print("Sent recv")
 					match_message = "COMMIT10".encode()
 					if BYZANTINE == 'n':
 						length = 16 - (len(match_message) % 16)
@@ -128,8 +129,8 @@ while 1:
 
 			elif STAGE == 'COMMIT':
 				if BYZANTINE == 'n':
-					match_message = "PREP11"
-					if len([match for match in messages if match == match_message]) >= 100 or len([match for match in messages if match == "COMMIT10"]) >= 2:
+					match_message = "COMMIT10"
+					if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "COMMIT10"]) >= 2:
 						NEW_MESSAGE = True
 						print("committed ", match_message)
 						STAGE = 'PRE'

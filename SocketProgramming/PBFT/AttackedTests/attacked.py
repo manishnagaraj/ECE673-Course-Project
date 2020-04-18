@@ -81,7 +81,7 @@ while 1:
 						
 
 			elif STAGE == 'PREP':
-				if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "PREP10"]) >= 2:
+				if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "PREP10"]) >= 1:
 					match_message = "COMMIT10".encode()
 					if BYZANTINE == 'n':
 						length = 16 - (len(match_message) % 16)
