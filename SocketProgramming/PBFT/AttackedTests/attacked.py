@@ -7,6 +7,10 @@ import pickle
 import pdb
 from Crypto.Cipher import AES
 from Crypto import Random
+import math
+
+def roundup(x):
+    return int(math.ceil(x / 10.0)) * 10
 
 N = 4
 
@@ -110,5 +114,7 @@ while 1:
 						print("DONE")
 
 				t = datetime.datetime.utcnow()
-				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+				now = t.second + t.microsecond/1000000.0
+				future = roundup(now)
+				sleeptime =  future - now
 				time.sleep(sleeptime)
