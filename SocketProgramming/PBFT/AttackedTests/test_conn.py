@@ -47,7 +47,7 @@ NEW_MESSAGE = False
 
 
 while 1:
-		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.5)
+		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.05)
 
 		for i in inputready:
 			if NEW_MESSAGE:
@@ -97,7 +97,6 @@ while 1:
 			elif STAGE == 'PREP':
 				match_message = "PREP10"
 				if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "PREP10"]) >= 2:
-					print("Sent recv")
 					match_message = "COMMIT10".encode()
 					if BYZANTINE == 'n':
 						length = 16 - (len(match_message) % 16)

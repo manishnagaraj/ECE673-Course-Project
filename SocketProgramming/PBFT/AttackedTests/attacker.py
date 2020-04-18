@@ -46,7 +46,7 @@ messages = []
 NEW_MESSAGE = False
 
 while 1:
-		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.5)
+		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.05)
 
 		for i in inputready:
 			if NEW_MESSAGE:
@@ -63,21 +63,32 @@ while 1:
 
 		if not  (inputready or outputready or exceptrdy):
 			if STAGE == 'PRE':
-				match_message = "PREP10".encode()
-				if BYZANTINE == 'n':
-					length = 16 - (len(match_message) % 16)
-					match_message += bytes([length])*length
+				if BYZANTINE == 'y':
+					match = "PREP11".encode()
+					length = 16 - (len(match) % 16)
+					match += bytes([length])*length
+					i = neighbors[0]
+					for x in range(100):
+						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
+						ciphertext = cipher.encrypt(match)
+						client.sendto(ciphertext, (i[3], i[2]))
+
 					for i in neighbors:
 						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
-						ciphertext = cipher.encrypt(match_message)
+						ciphertext = cipher.encrypt(match)
 						client.sendto(ciphertext, (i[3], i[2]))
 
 					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
-					ciphertext = cipher.encrypt(match_message)
+					ciphertext = cipher.encrypt(match)
 					client.sendto(ciphertext, (SERVER, int(PORT)))
+				
+				STAGE = 'PREP'
+				print("Sent prepare")
+						
 
+			elif STAGE == 'PREP':
 				if BYZANTINE == 'y':
-					match = "PREP11".encode()
+					match = "COMMIT11".encode()
 					length = 16 - (len(match) % 16)
 					match += bytes([length])*length
 					i = neighbors[0]
@@ -93,57 +104,11 @@ while 1:
 					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 					ciphertext = cipher.encrypt(match)
 					client.sendto(ciphertext, (SERVER, int(PORT)))
-				
-				STAGE = 'PREP'
-				print("Sent prepare")
-						
-
-			elif STAGE == 'PREP':
-				match_message = "PREP11"
-				if len([match for match in messages if match == match_message]) >= 100:
-					match_message = "COMMIT10".encode()
-					if BYZANTINE == 'n':
-						length = 16 - (len(match_message) % 16)
-						match_message += bytes([length])*length
-						for i in neighbors:
-							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
-							ciphertext = cipher.encrypt(match_message)
-							client.sendto(ciphertext, (i[3], i[2]))
-
-						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
-						ciphertext = cipher.encrypt(match_message)
-						client.sendto(ciphertext, (SERVER, int(PORT)))
-
-					if BYZANTINE == 'y':
-						match = "COMMIT11".encode()
-						length = 16 - (len(match) % 16)
-						match += bytes([length])*length
-						i = neighbors[0]
-						for x in range(100):
-							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
-							ciphertext = cipher.encrypt(match)
-							client.sendto(ciphertext, (i[3], i[2]))
-						for i in neighbors:
-							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
-							ciphertext = cipher.encrypt(match)
-							client.sendto(ciphertext, (i[3], i[2]))
-
-						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
-						ciphertext = cipher.encrypt(match)
-						client.sendto(ciphertext, (SERVER, int(PORT)))
 
 					print("Sent commit")
 					STAGE = 'COMMIT'
 
 			elif STAGE == 'COMMIT':
-				if BYZANTINE == 'n':
-					match_message = "PREP11"
-					if len([match for match in messages if match == match_message]) >= 100 or len([match for match in messages if match == "COMMIT10"]) >= 2:
-						NEW_MESSAGE = True
-						print("committed ", match_message)
-						STAGE = 'PRE'
-						print("DONE")
-
 				if BYZANTINE == 'y':
 					NEW_MESSAGE = True
 					print("committed ", match_message)
