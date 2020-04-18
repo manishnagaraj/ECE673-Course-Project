@@ -70,7 +70,7 @@ while 1:
 					for i in neighbors:
 						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match_message)
-						client.sendto(ciphertext, (i[3], i[2]))
+						client.sendto(ciphertext, (SERVER, i[2]))
 
 					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 					ciphertext = cipher.encrypt(match_message)
@@ -83,7 +83,7 @@ while 1:
 					for i in neighbors:
 						cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match)
-						client.sendto(ciphertext, (i[3], i[2]))
+						client.sendto(ciphertext, (SERVER, i[2]))
 
 					cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 					ciphertext = cipher.encrypt(match)
@@ -103,7 +103,7 @@ while 1:
 						for i in neighbors:
 							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 							ciphertext = cipher.encrypt(match_message)
-							client.sendto(ciphertext, (i[3], i[2]))
+							client.sendto(ciphertext, (SERVER, i[2]))
 
 						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match_message)
@@ -116,7 +116,7 @@ while 1:
 						for i in neighbors:
 							cipher = AES.new(keys[int(cid)][i[0]], AES.MODE_EAX, IV)
 							ciphertext = cipher.encrypt(match)
-							client.sendto(ciphertext, (i[3], i[2]))
+							client.sendto(ciphertext, (SERVER, i[2]))
 
 						cipher = AES.new(keys[int(cid)]['server'], AES.MODE_EAX, IV)
 						ciphertext = cipher.encrypt(match)

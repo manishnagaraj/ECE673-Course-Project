@@ -3,6 +3,7 @@ import base64
 import hashlib
 from crypto import Random
 from crypto.Cipher import AES
+import time
 
 def get_key(val): 
     for key, value in ports.items(): 
@@ -119,4 +120,17 @@ while running:
 						match_message = "COMMIT10"
 						if len([match for match in messages if match == match_message]) >= N-2:
 							print("committed", match_message)
-							STAGE = 'DONE'
+							time.sleep(10)
+							del messages
+							messages = []
+							if len(addresses) == N-1:
+								for ind, i in enumerate(addresses):
+									match_message = "PRE10".encode()
+									length = 16 - (len(match_message) % 16)
+									match_message += bytes([length])*length
+									cipher = AES.new(keys[client_ids[ind]], AES.MODE_EAX, IV)
+									ciphertext = cipher.encrypt(match_message)
+									server.sendto(ciphertext, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+								STAGE = 'PREP'
+								match_message = "PREP10"
+								print("Sent pre-prepare")
