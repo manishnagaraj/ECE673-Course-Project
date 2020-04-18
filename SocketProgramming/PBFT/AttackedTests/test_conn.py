@@ -4,8 +4,8 @@ import sys
 import select
 import pickle
 import pdb
-from crypto.Cipher import AES
-from crypto import Random
+from Crypto.Cipher import AES
+from Crypto import Random
 
 N = 4
 
@@ -94,8 +94,8 @@ while 1:
 						
 
 			elif STAGE == 'PREP':
-				match_message = "PREP11"
-				if len([match for match in messages if match == match_message]) >= 100:
+				match_message = "PREP10"
+				if len([match for match in messages if match == "PREP11"]) >= 100 or len([match for match in messages if match == "PREP10"]) >= 2:
 					match_message = "COMMIT10".encode()
 					if BYZANTINE == 'n':
 						length = 16 - (len(match_message) % 16)
