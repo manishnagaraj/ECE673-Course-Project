@@ -143,5 +143,5 @@ while 1:
 					STAGE = 'PRE'
 					print("DONE")
 				
-				t = datetime.utcnow()
+				t = datetime.datetime.utcnow()
 				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
