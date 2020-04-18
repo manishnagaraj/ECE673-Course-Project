@@ -44,7 +44,6 @@ match_message = ""
 messages = []
 NEW_MESSAGE = False
 
-
 while 1:
 		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.5)
 
@@ -135,7 +134,6 @@ while 1:
 					print("Sent commit")
 					STAGE = 'COMMIT'
 
-
 			elif STAGE == 'COMMIT':
 				if BYZANTINE == 'n':
 					match_message = "PREP11"
@@ -150,4 +148,3 @@ while 1:
 					print("committed ", match_message)
 					STAGE = 'PRE'
 					print("DONE")
-				time.sleep(10)
