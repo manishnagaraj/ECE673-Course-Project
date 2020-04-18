@@ -47,7 +47,7 @@ NEW_MESSAGE = False
 
 
 while 1:
-		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.05)
+		inputready, outputready, exceptrdy = select.select([0, client], [],[], 0.5)
 
 		for i in inputready:
 			if NEW_MESSAGE:
