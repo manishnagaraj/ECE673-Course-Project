@@ -149,5 +149,7 @@ while 1:
 					print("committed ", match_message)
 					STAGE = 'PRE'
 					print("DONE")
-				sleeptime = 60 - datetime.utcnow().second
+					
+				t = datetime.utcnow()
+				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
 				time.sleep(sleeptime)
