@@ -3,11 +3,11 @@ import sys
 import select
 import pickle
 import pdb
-from crypto.Cipher import AES
-from crypto import Random
-from crypto.Hash import SHA256
-from crypto.Signature import PKCS1_v1_5
-from crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto import Random
+from Crypto.Hash import SHA256
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.PublicKey import RSA
 import pickle
 
 cid = sys.argv[1]
