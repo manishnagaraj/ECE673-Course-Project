@@ -77,6 +77,7 @@ while running:
 						for ind, i in enumerate(addresses):
 							REGISTER_RESPONSE = pickle.dumps(clients[client_ids[ind]])
 							server.sendto(REGISTER_RESPONSE, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+						print("sent messages")
 
 						if BYZANTINE == 'n':
 							send_val = 10
@@ -91,10 +92,11 @@ while running:
 						if BYZANTINE == 'y':
 							send_val = 11
 							for ind, i in enumerate(addresses):
+								print(send_val, client_ids[ind])
 								match_message = str(send_val).encode()
-								send_val+=1
 								digest = SHA256.new()
 								digest.update(match_message)
 								sig = signer.sign(digest)
 								data_string = pickle.dumps((match_message, sig))
 								server.sendto(data_string, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+								send_val+=1

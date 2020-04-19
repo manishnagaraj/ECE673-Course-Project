@@ -37,8 +37,9 @@ print(neighbors)
 messages = []
 signs = []
 
+RECV = False
 SENT = False
-
+leaderdata = None
 #verified = verifier.verify(digest, sig)
 
 while 1:
@@ -46,10 +47,13 @@ while 1:
 		for i in inputready:
 			data, address = client.recvfrom(1024)
 			port = address[1]
+			if str(port) == str(PORT):
+				leaderdata = data
+				RECV = True
 			unpickled = pickle.loads(data)
-			print(messages)
 			messages.append(unpickled[0].decode())
 			signs.append(unpickled[1])
+			print(messages)
 			if len(messages) >= 3:
 				if len(set(messages)) == 1:
 					print("committed: ", messages[0])
@@ -69,9 +73,9 @@ while 1:
 							print("no commit")
 
 		if not  (inputready or outputready or exceptrdy):
-			if BYZANTINE == 'n' and not SENT:
+			if BYZANTINE == 'n' and not SENT and RECV:
 				for i in neighbors:
-					client.sendto(data, (SERVER, i[2]))
+					client.sendto(leaderdata, (SERVER, i[2]))
 				SENT = True
 
 			if BYZANTINE == 'y' and not SENT:
