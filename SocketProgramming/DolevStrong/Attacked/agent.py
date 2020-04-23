@@ -1,12 +1,12 @@
 import socket, select, pickle
 import base64
 import hashlib
-from Crypto import Random
-from Crypto.Cipher import AES
+from crypto import Random
+from crypto.Cipher import AES
 import pickle
-from Crypto.Hash import SHA256
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.PublicKey import RSA
+from crypto.Hash import SHA256
+from crypto.Signature import PKCS1_v1_5
+from crypto.PublicKey import RSA
 
 def get_key(val): 
     for key, value in ports.items(): 
@@ -77,6 +77,7 @@ while running:
 						for ind, i in enumerate(addresses):
 							REGISTER_RESPONSE = pickle.dumps(clients[client_ids[ind]])
 							server.sendto(REGISTER_RESPONSE, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+						print("sent messages")
 
 						if BYZANTINE == 'n':
 							send_val = 10
@@ -91,10 +92,11 @@ while running:
 						if BYZANTINE == 'y':
 							send_val = 11
 							for ind, i in enumerate(addresses):
+								print(send_val, client_ids[ind])
 								match_message = str(send_val).encode()
-								send_val+=1
 								digest = SHA256.new()
 								digest.update(match_message)
 								sig = signer.sign(digest)
 								data_string = pickle.dumps((match_message, sig))
 								server.sendto(data_string, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+								send_val+=1

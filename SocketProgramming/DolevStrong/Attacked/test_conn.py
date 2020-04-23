@@ -3,12 +3,18 @@ import sys
 import select
 import pickle
 import pdb
-from Crypto.Cipher import AES
-from Crypto import Random
-from Crypto.Hash import SHA256
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.PublicKey import RSA
+from crypto.Cipher import AES
+from crypto import Random
+from crypto.Hash import SHA256
+from crypto.Signature import PKCS1_v1_5
+from crypto.PublicKey import RSA
+import datetime
 import pickle
+import math
+import time
+
+def roundup(x):
+    return int(math.ceil(x / 10.0)) * 10
 
 cid = sys.argv[1]
 SERVER = sys.argv[2]
@@ -40,6 +46,9 @@ signs = []
 RECV = False
 SENT = False
 leaderdata = None
+STAGE = 'PRE'
+
+NEW_MESSAGE = False
 #verified = verifier.verify(digest, sig)
 
 while 1:
@@ -71,8 +80,17 @@ while 1:
 							print("committed: ", signed_messages[0])
 						else:
 							print("no commit")
+				STAGE = 'DONE'
 
 		if not  (inputready or outputready or exceptrdy):
+			if NEW_MESSAGE:
+				NEW_MESSAGE = False
+				messages = []
+				signs = []
+				unpickled = pickle.loads(leaderdata)
+				messages.append(unpickled[0].decode())
+				signs.append(unpickled[1])
+
 			if BYZANTINE == 'n' and not SENT and RECV:
 				for i in neighbors:
 					client.sendto(leaderdata, (i[3], i[2]))
@@ -86,3 +104,13 @@ while 1:
 				for i in neighbors:
 					client.sendto(data_string, (i[3], i[2]))
 				SENT = True
+
+			if SENT and STAGE == 'DONE':
+				t = datetime.datetime.utcnow()
+				now = t.second + t.microsecond/1000000.0
+				future = roundup(now)
+				sleeptime =  future - now
+				time.sleep(sleeptime)
+				SENT = False
+				NEW_MESSAGE = True
+				STAGE = 'PRE'
