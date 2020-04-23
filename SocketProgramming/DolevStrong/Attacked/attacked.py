@@ -36,6 +36,7 @@ print(neighbors)
 
 messages = []
 signs = []
+NEW_MESSAGE = False
 
 RECV = False
 SENT = False
@@ -73,6 +74,11 @@ while 1:
 							print("no commit")
 
 		if not  (inputready or outputready or exceptrdy):
+			if NEW_MESSAGE:
+				NEW_MESSAGE = False
+				messages = []
+				signs = []
+
 			if BYZANTINE == 'n' and not SENT and RECV:
 				for i in neighbors:
 					client.sendto(leaderdata, (SERVER, i[2]))
@@ -86,3 +92,11 @@ while 1:
 				for i in neighbors:
 					client.sendto(data_string, (SERVER, i[2]))
 				SENT = True
+
+			t = datetime.datetime.utcnow()
+			now = t.second + t.microsecond/1000000.0
+			future = roundup(now)
+			sleeptime =  future - now
+			time.sleep(sleeptime)
+			SENT = False
+			NEW_MESSAGE = False
