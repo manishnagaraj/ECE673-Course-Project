@@ -1,1 +1,1 @@
-This is for Hotstuff
+This is for Sync-Hotstuff (named hotstuff by mistake)
