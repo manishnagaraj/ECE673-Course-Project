@@ -30,7 +30,8 @@ public:
   Hotstuff ();
   virtual ~Hotstuff ();
   uint64_t GetCnt ();
-  uint64_t        m_quorum;      //!< Total number of signatures in quorum
+  uint64_t        m_com_cnt;      //!< Total number of commits received
+
   Ptr<Socket> GetListeningSocket (void) const;
   Ptr<Socket> GetSendingSocket (void) const;
   std::list<Ptr<Socket> > GetAcceptedSockets (void) const;
@@ -47,7 +48,7 @@ private:
   void ConnectionSucceeded(Ptr<Socket> socket);
   void ConnectionFailed(Ptr<Socket> socket);
   void HandleRead (Ptr<Socket> socket);
-  void HandlePacket (Ptr<Packet> packet, Address add);
+  void HandlePacket (Ptr<Packet> socket);
   void HandleAccept (Ptr<Socket> socket, const Address& from);
   void HandlePeerClose (Ptr<Socket> socket);
   void HandlePeerError (Ptr<Socket> socket);

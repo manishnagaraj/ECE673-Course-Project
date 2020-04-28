@@ -1,8 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Trying hotstuff
+ * Hotstuff and Zyzzyva
  *
- * Basing it on udpechoclient and Hotstuff i developed 
  *
  * Author: Manish Nagaraj (mnagara@purdue.edu)
  * 	   Purdue University
@@ -30,72 +29,72 @@
 
 #include "Hotstuff.h"
 
-namespace ns3 {
+namespace ns3{
 
 NS_LOG_COMPONENT_DEFINE ("Hotstuff");
 
-NS_OBJECT_ENSURE_REGISTERED(Hotstuff);
+NS_OBJECT_ENSURE_REGISTERED (Hotstuff);
 
-//Type ID definition
+//TID definition
 TypeId
-Hotstuff::GetTypeId(void)
+Hotstuff::GetTypeId (void)
 {
-	static TypeId tid = TypeId ("ns3::Hotstuff")
-	    .SetParent<Application> ()
-	    .SetGroupName("Applications")
-            .AddConstructor<Hotstuff> ()
-	    .AddAttribute("DataRate","The data rate in on state.",
-			      DataRateValue (DataRate ("500kb/s")),
-			      MakeDataRateAccessor (&Hotstuff::m_cbrRate),
-			      MakeDataRateChecker ())
-	    .AddAttribute ("PacketSize", "The size of packets sent in on state",
-			   UintegerValue (512),
-			   MakeUintegerAccessor (&Hotstuff::m_pktSize),
-			   MakeUintegerChecker<uint32_t> (1))
-	    .AddAttribute ("NumberFaults", "The number of faulty nodes in the system",
-			   UintegerValue (1),
-			   MakeUintegerAccessor (&Hotstuff::m_faults),
-			   MakeUintegerChecker<uint64_t> (1))
-	    .AddAttribute ("Local",
-			   "The Address on which to Bind the rx socket.",
-			   AddressValue (),
-			   MakeAddressAccessor (&Hotstuff::m_local),
-			   MakeAddressChecker ())
-	    .AddAttribute ("Protocol",
-			   "The type id of the protocol to use for the rx socket.",
-			   TypeIdValue (UdpSocketFactory::GetTypeId ()),
-			   MakeTypeIdAccessor (&Hotstuff::m_tid),
-			   MakeTypeIdChecker ())
-	    .AddTraceSource ("Rx",
-			     "A packet has been received",
-			     MakeTraceSourceAccessor (&Hotstuff::m_rxTrace),
-			     "ns3::Packet::AddressTracedCallback")
-	    .AddTraceSource ("RxWithAddresses", "A packet has been received",
-			     MakeTraceSourceAccessor (&Hotstuff::m_rxTraceWithAddresses),
-			     "ns3::Packet::TwoAddressTracedCallback")
-	    .AddTraceSource ("Tx", "A new packet is created and is sent",
-			     MakeTraceSourceAccessor (&Hotstuff::m_txTrace),
-			     "ns3::Packet::TracedCallback")
-	    .AddTraceSource ("TxWithAddresses", "A new packet is created and is sent",
-			     MakeTraceSourceAccessor (&Hotstuff::m_txTraceWithAddresses),
-			     "ns3::Packet::TwoAddressTracedCallback")
-	  ;
-	return tid;
-}//tid
+  static TypeId tid = TypeId ("ns3::Hotstuff")
+    .SetParent<Application> ()
+    .SetGroupName("Applications")
+    .AddConstructor<Hotstuff> ()
+    .AddAttribute ("DataRate", "The data rate in on state.",
+                   DataRateValue (DataRate ("500kb/s")),
+                   MakeDataRateAccessor (&Hotstuff::m_cbrRate),
+                   MakeDataRateChecker ())
+    .AddAttribute ("PacketSize", "The size of packets sent in on state",
+                   UintegerValue (512),
+                   MakeUintegerAccessor (&Hotstuff::m_pktSize),
+                   MakeUintegerChecker<uint32_t> (1))
+    .AddAttribute ("NumberFaults", "The number of faulty nodes in the system",
+                   UintegerValue (1),
+                   MakeUintegerAccessor (&Hotstuff::m_faults),
+                   MakeUintegerChecker<uint64_t> (1))
+    .AddAttribute ("Local",
+                   "The Address on which to Bind the rx socket.",
+                   AddressValue (),
+                   MakeAddressAccessor (&Hotstuff::m_local),
+                   MakeAddressChecker ())
+    .AddAttribute ("Protocol",
+                   "The type id of the protocol to use for the rx socket.",
+                   TypeIdValue (UdpSocketFactory::GetTypeId ()),
+                   MakeTypeIdAccessor (&Hotstuff::m_tid),
+                   MakeTypeIdChecker ())
+    .AddTraceSource ("Rx",
+                     "A packet has been received",
+                     MakeTraceSourceAccessor (&Hotstuff::m_rxTrace),
+                     "ns3::Packet::AddressTracedCallback")
+    .AddTraceSource ("RxWithAddresses", "A packet has been received",
+                     MakeTraceSourceAccessor (&Hotstuff::m_rxTraceWithAddresses),
+                     "ns3::Packet::TwoAddressTracedCallback")
+    .AddTraceSource ("Tx", "A new packet is created and is sent",
+                     MakeTraceSourceAccessor (&Hotstuff::m_txTrace),
+                     "ns3::Packet::TracedCallback")
+    .AddTraceSource ("TxWithAddresses", "A new packet is created and is sent",
+                     MakeTraceSourceAccessor (&Hotstuff::m_txTraceWithAddresses),
+                     "ns3::Packet::TwoAddressTracedCallback")
+  ;
+  return tid;
+}//Type Id
 
 //Constructor
 Hotstuff::Hotstuff ()
 {
-  NS_LOG_FUNCTION (this);
-  m_socket_Rx = 0;
-  m_socket_Tx = 0;
-  m_quorum = 0;
+ NS_LOG_FUNCTION (this);
+ m_socket_Rx = 0;
+ m_socket_Tx = 0;
+ m_com_cnt = 0;
 }
 
 //~constructor
 Hotstuff::~Hotstuff()
 {
-  NS_LOG_FUNCTION (this);
+ NS_LOG_FUNCTION (this);
 }
 
 //Get listening socket
@@ -114,20 +113,6 @@ Hotstuff::GetSendingSocket (void) const
   return m_socket_Tx;
 }
 
-//Count of quorum
-uint64_t Hotstuff::GetCnt ()
-{
-      NS_LOG_FUNCTION (this);
-      return m_quorum;
-}
-
-//increment cnt
-void Hotstuff::AddCnt (void)
-{
-      NS_LOG_FUNCTION (this);
-      m_quorum++;
-}
-
 //Get list of accepted sockets
 std::list<Ptr<Socket> >
 Hotstuff::GetAcceptedSockets (void) const
@@ -136,10 +121,20 @@ Hotstuff::GetAcceptedSockets (void) const
   return m_socketList;
 }
 
-// Write function to check quorum
-//ToDo
+//Get counts
+uint64_t Hotstuff::GetCnt () 
+{
+  NS_LOG_FUNCTION (this);
+  return m_com_cnt;
+}
 
-//DoDispose
+//Increment count
+void Hotstuff::AddCnt (void)
+{
+  NS_LOG_FUNCTION (this);
+  m_com_cnt++;
+}
+
 void Hotstuff::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
@@ -152,7 +147,6 @@ void Hotstuff::DoDispose (void)
   Application::DoDispose ();
 }
 
-//StartApplication
 void Hotstuff::StartApplication()
 {
   NS_LOG_FUNCTION(this);
@@ -186,10 +180,9 @@ void Hotstuff::StartApplication()
         //Ptr<Packet> packet1 = Create<Packet> (m_pktSize);
         std::ostringstream msg; 
         msg << "0,Hello!" << '\0';
-        Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), msg.str().length());
+        Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), 1024);
         SendEvent(packet1);  
    }
-
   //Listen
   m_socket_Rx->SetRecvCallback (MakeCallback (&Hotstuff::HandleRead, this));
   m_socket_Rx->SetAcceptCallback (
@@ -199,8 +192,7 @@ void Hotstuff::StartApplication()
     MakeCallback (&Hotstuff::HandlePeerClose, this),
     MakeCallback (&Hotstuff::HandlePeerError, this));
 
-}
-
+}//application start
 
 //StopApplication
 void Hotstuff::StopApplication()
@@ -223,7 +215,7 @@ void Hotstuff::StopApplication()
     }
 }
 
-//Sending (multicast - send)
+//Sending 
 void Hotstuff::SendEvent(Ptr <Packet> packet)
 {
    NS_LOG_FUNCTION (this);
@@ -285,54 +277,69 @@ void Hotstuff::HandlePeerError (Ptr<Socket> socket)
 {
   NS_LOG_FUNCTION (this << socket);
 }
- 
+
+//Handling packet
+// get packet from leader, send back to leader
+// if leader and you get 2f+1 send commit, commit
+// if you get commit from leader, commit
 
 //Listening - HandleRead
 void Hotstuff::HandleRead (Ptr<Socket> socket)
 {
-NS_LOG_FUNCTION(this<<socket);
-Ptr<Packet> packet;
-Address from;
-Address localAddress;
-while ((packet = socket->RecvFrom(from)))
+ NS_LOG_FUNCTION(this << socket);
+ Ptr<Packet> packet;
+  Address from;
+  Address localAddress;
+  while ((packet = socket->RecvFrom (from)))
+    {
+      if (packet->GetSize () == 0)
+        { //EOF
+          break;
+        }
+      if (InetSocketAddress::IsMatchingType (from))
         {
-             socket->GetSockName (localAddress);
-             m_rxTrace (packet);
-             m_rxTraceWithAddressess (packet, from, localAddress);
-             if(GetNode()->GetId()!=0)
-                   HandlePacket (packet, from);
-             else{
-                     AddCnt();
-                     if(GetCnt() == (2*m_faults) + 1){
-                             std::ostringstream msg; 
-                             msg << "2,Hello!" << '\0';
-                             Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), msg.str().length());
-                             SendEvent(packet1);  
-                      }// quorum is full        
-             }//else
-        }//while
-}//Handle read
-
-
-//Special function for non leaders
-void Hotstuff::HandlePacket (Ptr<Packet> packet, Address add)
-{
-// Convert Packet to string
+          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds ()
+                       << "s packet received "
+                       <<  packet->GetSize () << " bytes from "
+                       << InetSocketAddress::ConvertFrom(from).GetIpv4 ());
+        }
+      socket->GetSockName (localAddress);
+      m_rxTrace (packet, from);
+      m_rxTraceWithAddresses (packet, from, localAddress);
+      //Handling packet
+      // convert string to find which message
         uint8_t *buffer = new uint8_t[packet->GetSize ()];
         packet->CopyData(buffer, packet->GetSize ());
         std::string Value_recvd = std::string((char*)buffer);
-//Check what strung it is
+        //Check what strung it is
         char precur = Value_recvd[0];
-    if(precur=='0'){
-    	   std::ostringstream msg; 
-           msg << "1,Hello!" << '\0';
-           Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), msg.str().length());
-           socket->SendTo (packet, 0, add);        
-    }
-    if(precur=='2'){
-        NS_LOG_INFO("Node " << GetNode()->GetId() << " is commiting to value");
-        StopApplication();
-    }      
+        if(precur=='0')
+        {     
+                std::ostringstream msg; 
+                msg << "1,Hello!" << '\0';
+                Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), 1024);
+                SendEvent(packet1);    
+                //Reply to sender
+        }//precur 0
+        if(precur=='1')
+        {       
+                if(GetNode()->GetId()==0){
+                AddCnt();
+                if(GetCnt()==(2*m_faults) + 1){
+                        std::ostringstream msg; 
+		        msg << "2,Hello!" << '\0';
+		        Ptr<Packet> packet1 = Create<Packet> ((uint8_t*) msg.str().c_str(), 1024);
+		        SendEvent(packet1);  
+                }//if 
+                }//make sure you are leader
+        }//precur 1
+        if(precur=='2')
+        {       
+		NS_LOG_INFO("Node " << GetNode()->GetId() << " is commiting to value");
+                StopApplication();
+        }//commiting precur
+    }//while loop
 }
 
-}// Namespace
+
+}//namespace ns3
