@@ -22,7 +22,7 @@ ports = dict()
 map_id = dict()
 outputs =[]
 
-BYZANTINE = 'n'
+BYZANTINE = 'y'
 
 client_connections = []
 
@@ -90,4 +90,5 @@ while running:
 						for ind, i in enumerate(addresses):
 								match_message = pickle.dumps(("COM", message_recv))
 								server.sendto(match_message, (addresses[client_ids[ind]], ports[client_ids[ind]]))
+								message_recv = []
 
