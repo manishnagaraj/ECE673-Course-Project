@@ -12,6 +12,9 @@ import datetime
 import pickle
 import math
 import time
+import os
+
+print(os.getpid())
 
 def roundup(x):
     return int(math.ceil(x / 10.0)) * 10
@@ -93,15 +96,6 @@ while 1:
 			if BYZANTINE == 'n' and not SENT and RECV:
 				for i in neighbors:
 					client.sendto(leaderdata, (SERVER, i[2]))
-				SENT = True
-
-			if BYZANTINE == 'y' and not SENT:
-				match_message = str("11").encode()
-				digest = SHA256.new()
-				digest.update(match_message)
-				data_string = pickle.dumps((match_message, signs[0]))
-				for i in neighbors:
-					client.sendto(data_string, (SERVER, i[2]))
 				SENT = True
 
 			if SENT and STAGE == 'DONE':

@@ -10,16 +10,6 @@ from Crypto.Hash import SHA256
 from Crypto.Signature import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 import pickle
-import datetime
-import pickle
-import math
-import time
-
-print(os.getpid())
-
-def roundup(x):
-    return int(math.ceil(x / 10.0)) * 10
-
 
 cid = sys.argv[1]
 SERVER = sys.argv[2]
@@ -65,11 +55,7 @@ neighbor_dict[int(cid)] = PKCS1_v1_5.new(my_key.publickey())
 messages = []
 stage = []
 
-RECV = False
 SENT = False
-leaderdata = None
-
-NEW_MESSAGE = False
 
 STAGE = 'PRE'
 #verified = verifier.verify(digest, sig)
@@ -79,31 +65,17 @@ while 1:
 		for i in inputready:
 			data, address = client.recvfrom(1024)
 			port = address[1]
-			if str(port) == str(PORT) and not RECV:
-				leaderdata = data
-				RECV = True
 			unpickled = pickle.loads(data)
 			stage.append(unpickled[0])
 			messages.append(unpickled[1])
-			print(stage)
 
 		if not (inputready or outputready or exceptrdy):
-			if NEW_MESSAGE:
-				NEW_MESSAGE = False
-				messages = []
-				stage = []
-				unpickled = pickle.loads(leaderdata)
-				messages.append(unpickled[1])
-				stage.append(unpickled[0])
-				print(messages, stage)
-
 			if BYZANTINE == 'n':
 				if STAGE == 'PRE':
 					if 'PRE' in stage:
 						STAGE = 'COMMIT'
 						index = stage.index("PRE")
 						match_message = messages[index]
-						print(match_message)
 						digest = SHA256.new()
 						digest.update(match_message)
 						sig = signer.sign(digest)
@@ -132,17 +104,6 @@ while 1:
 								else:
 									print("no commit")
 						STAGE = 'DONE'
-						SENT = True
-
-					if SENT and STAGE == 'DONE':
-						t = datetime.datetime.utcnow()
-						now = t.second + t.microsecond/1000000.0
-						future = roundup(now)
-						sleeptime =  future - now
-						time.sleep(sleeptime)
-						SENT = False
-						NEW_MESSAGE = True
-						STAGE = 'PRE'
 
 			elif BYZANTINE == 'y':
 				if STAGE == 'PRE':
