@@ -8,6 +8,9 @@ import datetime
 import pdb
 from Crypto.Cipher import AES
 from Crypto import Random
+import os
+
+print(os.getpid())
 num_messages = dict()
 
 def roundup(x):
