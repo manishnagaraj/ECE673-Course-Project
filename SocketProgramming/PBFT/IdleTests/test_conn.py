@@ -4,8 +4,8 @@ import sys
 import select
 import pickle
 import pdb
-from crypto.Cipher import AES
-from crypto import Random
+from Crypto.Cipher import AES
+from Crypto import Random
 
 N = 4
 

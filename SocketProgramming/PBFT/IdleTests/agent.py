@@ -1,8 +1,8 @@
 import socket, select, pickle
 import base64
 import hashlib
-from crypto import Random
-from crypto.Cipher import AES
+from Crypto import Random
+from Crypto.Cipher import AES
 import time
 
 def get_key(val): 
